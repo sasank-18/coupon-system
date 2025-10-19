@@ -2,11 +2,11 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "dev": "pnpm run build && pnpm run start",
     "build": "tsc -b",
-    "start": "nodemon dist/index.js",
+    "start": "nodemon dist/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

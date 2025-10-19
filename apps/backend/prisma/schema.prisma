@@ -2,16 +2,12 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
-
-
 
 model Coupon {
   id               Int      @id @default(autoincrement())
@@ -27,5 +23,27 @@ model Coupon {
   status           String   @default("active")
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+
+  redemptions Redemption[]
 }
 
+model Redemption {
+  id        String   @id @default(cuid())
+  coupon    Coupon   @relation(fields: [couponId], references: [id])
+  couponId  Int
+  userId    String? // optional, can track user who redeemed
+  amountOff Float
+  createdAt DateTime @default(now())
+}
+
+enum DiscountType {
+  FIXED
+  PERCENT
+}
+
+enum CouponStatus {
+  ACTIVE
+  EXPIRED
+  REDEEMED_OUT
+  INACTIVE
+}
