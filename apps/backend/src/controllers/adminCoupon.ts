@@ -1,10 +1,21 @@
 import { Request, Response } from "express";
 import prisma from "../config/db";
 import { generateCouponCode } from "../utils/generateCouponCode";
-
+ import {createCouponSchema} from "@repo/common/types"
 export const createCoupon = async (req: Request, res: Response) => {
   try {
-    const { code, description, valid_from, valid_to, discount_type, discount_value, max_discount, max_redemptions } = req.body;
+
+    const parsedData  = createCouponSchema.safeParse(req.body);
+    if (!parsedData.success) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid input data",
+        errors: parsedData.error,
+      });
+    }
+
+       const { code, description, valid_from, valid_to, discount_type, discount_value, max_discount, max_redemptions } = parsedData.data;
+
 
     const couponCode = code || generateCouponCode();
 
