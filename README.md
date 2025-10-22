@@ -31,6 +31,8 @@ This repository contains the following applications and packages:
 ```bash
 git clone <repo-url>
 cd Samurai-assignment
+cd Samurai-assignment/apps/backend
+npx prisma generate
 pnpm install
 pnpm run build
 ```
