@@ -10,6 +10,7 @@ const layout = ({ children }: { children: ReactNode }) => {
       </div>
 
       {children}
+      <Toaster position="top-right" reverseOrder={false} />
     </div>
   );
 };
