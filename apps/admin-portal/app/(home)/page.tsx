@@ -35,7 +35,7 @@ import toast from "react-hot-toast";
 // ];
 
 export default function CouponsPage() {
-  const { data, isLoading, error, refetch } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ["coupons"],
     queryFn: async () => {
       try {
@@ -45,14 +45,14 @@ export default function CouponsPage() {
         });
 
         console.log(data);
-        if (!data.success) {
-          toast.error(data.message);
-          return { count: 0, results: [] };
+        if (!Array.isArray(data?.updatedCoupons) || !data?.success) {
+          toast.error(data?.message);
+          return [];
         }
-        return data.coupons;
-      } catch (error : any) {
+        return data?.updatedCoupons;
+      } catch (error: any) {
         toast.error(error.message);
-        return { count: 0, results: [] };
+        return [];
       }
     },
   });

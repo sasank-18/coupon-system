@@ -1,11 +1,10 @@
 import { Request, Response } from "express";
 import prisma from "../config/db";
 import { generateCouponCode } from "../utils/generateCouponCode";
- import {createCouponSchema} from "@repo/common/types"
+import { createCouponSchema } from "@repo/common/types";
 export const createCoupon = async (req: Request, res: Response) => {
   try {
-
-    const parsedData  = createCouponSchema.safeParse(req.body);
+    const parsedData = createCouponSchema.safeParse(req.body);
     if (!parsedData.success) {
       return res.status(400).json({
         success: false,
@@ -14,8 +13,16 @@ export const createCoupon = async (req: Request, res: Response) => {
       });
     }
 
-       const { code, description, valid_from, valid_to, discount_type, discount_value, max_discount, max_redemptions } = parsedData.data;
-
+    const {
+      code,
+      description,
+      valid_from,
+      valid_to,
+      discount_type,
+      discount_value,
+      max_discount,
+      max_redemptions,
+    } = parsedData.data;
 
     const couponCode = code || generateCouponCode();
 
@@ -41,7 +48,23 @@ export const createCoupon = async (req: Request, res: Response) => {
 export const getAllCoupons = async (_req: Request, res: Response) => {
   try {
     const coupons = await prisma.coupon.findMany();
-    res.json({ success: true, coupons });
+
+    const updatedCoupons = coupons.map((data : any) => {
+      if (data.status === "active" && new Date(data.valid_to) < new Date()) {
+        return { ...data, status: "expired" };
+      }
+      return data;
+    });
+
+    await prisma.coupon.updateMany({
+      where: {
+        status: "active",
+        valid_to: { lt: new Date() },
+      },
+      data: { status: "expired" },
+    });
+
+    res.json({ success: true, updatedCoupons });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
   }

@@ -24,8 +24,8 @@ export type CreateCouponInput = z.infer<typeof createCouponSchema>;
 
 export const redeemCouponSchema = z.object({
   couponId: z.number().min(1),  // coupon code id
-  orderAmount: z.number().positive()   ,
-  amountOff : z.number().nonnegative()// ,to apply discount logic
+  orderAmount: z.number().positive(),
+  // amountOff : z.number().nonnegative()// ,to apply discount logic
 });
 
 

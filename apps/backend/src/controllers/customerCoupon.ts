@@ -24,17 +24,15 @@ export const getCoupon = async (req: Request, res: Response) => {
       discount = Math.min(discount, coupon.max_discount);
     }
 
-    await prisma.coupon.update({
-      where: { id: coupon.id },
-      data: { redemptions_used: coupon.redemptions_used + 1 },
-    });
+    // await prisma.coupon.update({
+    //   where: { id: coupon.id },
+    //   data: { redemptions_used: coupon.redemptions_used + 1 },
+    // });
 
     res.json({
       success: true,
       coupon: {
-        code: coupon.code,
-        type: coupon.discount_type,
-        discount_value: discount,
+        ...coupon
       },
       message: `You saved ₹${discount}!`,
     });
@@ -44,10 +42,15 @@ export const getCoupon = async (req: Request, res: Response) => {
 };
 
 export const redeemCoupon = async (req: Request, res: Response) => {
-  try {
-    const { couponId } = req.params;
-    if (!couponId) return;
-    const parsedData = redeemCouponSchema.safeParse(req.query); // userId = optional, orderAmount = required for % coupons
+  try {  
+    console.log("raj")
+
+    console.log(req.params,req.body)
+    
+    const { code } = req.params;
+     
+    // if (!code) return;
+    const parsedData = redeemCouponSchema.safeParse(req.body); 
 
     if (!parsedData.success) {
       return res.status(400).json({
@@ -56,6 +59,7 @@ export const redeemCoupon = async (req: Request, res: Response) => {
         errors: parsedData.error,
       });
     }
+    
 
     const { orderAmount } = parsedData.data;
     if (!orderAmount) {
@@ -69,7 +73,7 @@ export const redeemCoupon = async (req: Request, res: Response) => {
 
     // 1. ✅ Find coupon by code
     const coupon = await prisma.coupon.findUnique({
-      where: { id: Number(couponId) },
+      where: { code },
     });
 
     if (!coupon) {
