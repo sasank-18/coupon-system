@@ -6,6 +6,7 @@ import axiosFetch from "../../utils/axiosFetch";
 import { COUPON_APIS } from "../../config/api";
 import toast from "react-hot-toast";
 import { CouponCard, CouponProps } from "../../components/CouponCard";
+import QRCode from "react-qr-code"; // ✅ For generating QR code
 
 export default function CouponsPage() {
   const [couponCode, setCouponCode] = useState<any>("");
@@ -17,35 +18,32 @@ export default function CouponsPage() {
     queryKey: ["coupon-details", couponCode],
     queryFn: async () => {
       const res: any = await axiosFetch({
-        url: COUPON_APIS.GET_COUPON_DETAILS(couponCode), // GET /coupons/:code
+        url: COUPON_APIS.GET_COUPON_DETAILS(couponCode),
         method: "get",
       });
-      console.log("res",res)
       if (!res.data.success) {
         toast.error(res?.data.message);
-
         throw new Error(res.data.message);
       }
       return res.data.coupon;
     },
-    enabled: false, // prevents auto-fetch
+    enabled: false,
   });
 
-  // ✅ Redeem Mutation (POST + send couponId + orderAmount)
-  const redeemMutation : any = useMutation({
+  // ✅ Redeem Mutation
+  const redeemMutation: any = useMutation({
     mutationFn: async (coupon: CouponProps) => {
       const res = await axiosFetch({
-        url: COUPON_APIS.Redeem_COUPON(couponCode), // POST /coupons/redeem/:code
+        url: COUPON_APIS.Redeem_COUPON(couponCode),
         method: "post",
         data: {
-          couponId: coupon.id, // ✅ sending id properly
-          orderAmount: 100, // ✅ static for now
+          couponId: coupon.id,
+          orderAmount: 100,
         },
       });
       return res.data;
     },
     onSuccess: (data: any) => {
-      console.log("Redeem done:", data);
       if (data?.success) {
         toast.success("🎉 Coupon Redeemed Successfully!");
         setRedeemedCoupon(data);
@@ -59,6 +57,8 @@ export default function CouponsPage() {
       toast.error(error?.message || "Something went wrong");
     },
   });
+
+  console.log(redeemMutation)
 
   return (
     <main className="w-full min-h-screen flex justify-center items-center">
@@ -99,28 +99,37 @@ export default function CouponsPage() {
           </button>
         </div>
 
-        {/* ✅ Redeem Button (only after view) */}
-        <button
-          onClick={() => redeemMutation.mutate(selectedCoupon!)}
-          disabled={!selectedCoupon || redeemMutation.isLoading}
-          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:bg-gray-400"
-        >
-          {redeemMutation.isLoading ? "Redeeming..." : "Redeem"}
-        </button>
-
-        {/* ✅ Show Coupon Preview */}
+        {/* ✅ Show QR Code + Redeem button */}
         {selectedCoupon && !redeemedCoupon && (
-          <div className="mt-4 w-full flex justify-center">
+          <div className="mt-4 flex flex-col items-center gap-4">
             <CouponCard {...selectedCoupon} />
+
+            {/* ✅ QR Code Generated from Coupon Code/Id */}
+            <div className="bg-white p-4 rounded-lg shadow-md">
+              <QRCode
+                value={selectedCoupon.code || couponCode}
+                size={200}
+              />
+            </div>
+            <p className="text-sm text-gray-600">Scan this QR to Redeem</p>
+
+            {/* ✅ OR Redeem Manually */}
+            <button
+              onClick={() => redeemMutation.mutate(selectedCoupon!)}
+              disabled={redeemMutation.status === "pending"}
+              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:bg-gray-400"
+            >
+              {redeemMutation.status === "pending" ? "Redeeming..." : "Redeem Manually"}
+            </button>
           </div>
         )}
 
-        {/* ✅ Show Redeemed Coupon */}
+        {/* ✅ Show Redeemed Result */}
         {redeemedCoupon && (
           <div className="mt-6 w-full flex flex-col items-center">
             <h3 className="text-lg font-semibold mb-2">🎉 Redeemed Coupon</h3>
             <p>{redeemedCoupon?.message}</p>
-            <p>discount : {redeemedCoupon.discount}</p>
+            <p>Discount: ₹{redeemedCoupon.discount}</p>
           </div>
         )}
       </div>
