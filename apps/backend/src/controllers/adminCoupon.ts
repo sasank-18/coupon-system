@@ -49,7 +49,7 @@ export const getAllCoupons = async (_req: Request, res: Response) => {
   try {
     const coupons = await prisma.coupon.findMany();
 
-    const updatedCoupons = coupons.map((data) => {
+    const updatedCoupons = coupons.map((data : any) => {
       if (data.status === "active" && new Date(data.valid_to) < new Date()) {
         return { ...data, status: "expired" };
       }

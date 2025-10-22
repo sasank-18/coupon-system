@@ -8,8 +8,8 @@
       "outputs": [".next/**", "!.next/cache/**", "dist/**", "!.turbo/**"]
     },
     "start": {
-      "dependsOn": ["build"],
-      "cache": false
+      "cache": false,
+      "outputs": []
     },
 
     "lint": {
