@@ -33,6 +33,7 @@ git clone <repo-url>
 cd Samurai-assignment
 cd Samurai-assignment/apps/backend
 npx prisma generate
+cd ../..
 pnpm install
 pnpm run build
 ```
