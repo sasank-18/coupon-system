@@ -107,7 +107,7 @@ export default function CouponsPage() {
             {/* ✅ QR Code Generated from Coupon Code/Id */}
             <div className="bg-white p-4 rounded-lg shadow-md">
               <QRCode
-                value={selectedCoupon.code || couponCode}
+                value={`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/coupons/${selectedCoupon.code}/redeem`}
                 size={200}
               />
             </div>
